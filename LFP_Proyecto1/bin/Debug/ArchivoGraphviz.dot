@@ -1,0 +1,21 @@
+digraph G {
+  start -> Asia;
+  start -> America;
+  Asia -> Japon;
+  Asia -> China;
+  Asia -> Korea;
+  America -> Canada;
+  America -> Guatemala;
+  America -> Chile;
+
+  start [shape=Mdiamond label="nombre"];
+  Asia [shape=record label="{Asia|71}"style=filled fillcolor=orange];
+  America [shape=record label="{America|55}"style=filled fillcolor=yellow];
+
+  Japon[shape=record label="{Japon|80}"style=filled fillcolor=red];
+  China[shape=record label="{China|95}"style=filled fillcolor=red];
+  Korea[shape=record label="{Korea|40}"style=filled fillcolor=green];
+  Canada[shape=record label="{Canada|65}"style=filled fillcolor=orange];
+  Chile [shape=record label="{Chile|60}"style=filled fillcolor=yellow];
+  Guatemala[shape=record label="{Guatemala|40}"style=filled fillcolor=green];
+}

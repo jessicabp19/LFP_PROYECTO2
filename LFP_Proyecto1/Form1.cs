@@ -19,7 +19,7 @@ namespace LFP_Proyecto1
         string htmlPathTokens = "";
         string htmlPathSimbolos = "";
         string htmlPathErrores = "";
-        Boolean hayErrores = true;
+        Boolean hayErrores = true, hayMasErrores=true;
 
         string pdfPath = "";
         string imgLoadingPath = "";
@@ -167,7 +167,6 @@ namespace LFP_Proyecto1
                 MessageBox.Show("Mensaje informativo", "Ha ocurrido un error, intente de nuevo", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             }
-            Console.WriteLine("SALIÓ ERR");
         }
 
         private void HtmlErrores2(LinkedList<Error> miListaE)
@@ -202,7 +201,40 @@ namespace LFP_Proyecto1
                 MessageBox.Show("Mensaje informativo", "Ha ocurrido un error, intente de nuevo", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             }
-            Console.WriteLine("SALIÓ ERR");
+        }
+
+        private void HtmlSimbolos(LinkedList<Simbolo> miListaS)
+        {
+            int correlativoErrores = 1;
+            string fechaHora = DateTime.Now.ToString("G");
+            int pos = nombreA_Entrada.LastIndexOf(@"\");
+            try
+            {
+                StreamWriter escritor = new StreamWriter(htmlPathSimbolos);
+
+                escritor.WriteLine("<!DOCTYPE html>\n<html>\n<head>\n<title>-----Salida-----</title>\n</head>\n<body bgcolor=\"#FAEBD7\"> <center>\n<h1> <center> -- SALIDAS DEL ANALIZADOR SINTÁCTICO --</h1>\n");
+                escritor.WriteLine("\n<h2> <center> FECHA Y HORA : " + fechaHora + "</h2>\n");
+                escritor.WriteLine("<table border='1'>\n" +
+                "<caption>TABLA DE TOKENS</caption>\n" +
+                "<tr>\n" +
+                "<th>Correlativo</th>\n<th>     TIPO    </th>\n<th>    NOMBRE    </th>\n<th>     VALOR       </th>\n" +
+                "</tr>\n");
+                foreach (Simbolo item in miListaS)
+                {
+                    escritor.WriteLine("<tr>\n<td>" + (correlativoErrores++) + "</td><td>" + item.getTipo() + "</td><td>" + item.getNombreVar() + "</td><td>" + item.getValorVar() + "</td>\n</tr>");
+                }
+                escritor.WriteLine("</table>\n<br>\n<br>\n");
+                escritor.WriteLine("\n<h2> <center> RUTA ARCHIVO : " + htmlPathSimbolos + "</h2>\n");
+                escritor.WriteLine("\n<h2> <center> Archivo Entrada : " + nombreA_Entrada.Substring(pos + 1) + "</h2>\n");
+                escritor.WriteLine("\n<h2> <center> Archivo Salida : " + nombreA_Entrada.Substring(pos + 1) + "</h2>\n");
+                escritor.WriteLine("</body>\n</html>");
+                escritor.Close();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Mensaje informativo", "Ha ocurrido un error, intente de nuevo", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+            }
         }
 
         #region EN PAUSA
@@ -631,6 +663,8 @@ namespace LFP_Proyecto1
                 lexico.Imprimir(lTokens);
                 lexico.ImprimirE(lErrores);
                 File.WriteAllText(htmlPathTokens, String.Empty);
+                File.WriteAllText(htmlPathErrores, String.Empty);
+                File.WriteAllText(htmlPathSimbolos, String.Empty);
                 nombreA_Salida = "";
                 #endregion
 
@@ -638,14 +672,12 @@ namespace LFP_Proyecto1
                 {
                     HtmlErrores(lErrores);
                     hayErrores = true;
-                    MessageBox.Show("Corrija lo errores existentes para poder proceder");
+                    MessageBox.Show("Corrija los ERRORES LÉXICOS existentes para poder proceder");
                 }
                 else
                 {
-                    MessageBox.Show("Analisis Lexico Exitoso");
+                    MessageBox.Show("Analisis Lexico Exitoso!");
                     hayErrores = false;
-                    //imgLoadingPath = Path.Combine(Application.StartupPath, "gifLoading.gif");
-                    //mostrarGrafico(imgLoadingPath);
                     HtmlTokens(lTokens);
                     lTokens.AddLast(new Token(Token.Tipo.ULTIMO, "#", 0, 0));
                     AnalizadorSintactico parser = new AnalizadorSintactico();
@@ -654,21 +686,20 @@ namespace LFP_Proyecto1
                     HtmlErrores2(SErrores);
                     if (SErrores.Count != 0)
                     {
-                        //HtmlErrores(lErrores);
-                        //hayErrores = true;
-                        MessageBox.Show("Corrija lo errores existentes para poder proceder");
+                        //HtmlErrores2(SErrores);
+                        //hayMasErrores = true;
+                        MessageBox.Show("Corrija lo ERRORES SINTACTICOS existentes para poder proceder");
                     }
                     else
                     {
                         Console.WriteLine("FIN!!!");
-                        richTextBox2.Text = parser.getTraduccion();Console.WriteLine("TRADUCCION");
+                        richTextBox2.Text = parser.getTraduccion();
                         LinkedList<Simbolo> LSimbolos =parser.getListaSimbolos();
-                        Console.WriteLine("TRAJO LA LISTA");
+                        HtmlSimbolos(LSimbolos);
                         foreach (Simbolo item in LSimbolos)
                         {
                             Console.WriteLine("YEI");
                         }
-                        Console.WriteLine("SALIÓ DEL FOR");
                     }
                 }
             }

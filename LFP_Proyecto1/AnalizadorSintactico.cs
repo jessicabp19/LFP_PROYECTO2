@@ -61,7 +61,7 @@ namespace LFP_Proyecto1
             emparejar(Token.Tipo.LLAVE_DER);
         }
 
-        public void INSTRUCCION()//INTRUCCION
+        public void INSTRUCCION()//<INTRUCCION>--><SENTENCIAS> <INTRUCCION>
         {
             if (tokenActual.GetTipo() == Token.Tipo.PR_BOOL || tokenActual.GetTipo() == Token.Tipo.PR_INT ||
                 tokenActual.GetTipo() == Token.Tipo.PR_STRING || tokenActual.GetTipo() == Token.Tipo.PR_FLOAT ||
@@ -122,63 +122,74 @@ namespace LFP_Proyecto1
         #endregion
 
         #region DECLARACION
-        public void DECLARACION()//<DECLARACION_VAR> -->   <TIPO_DATO> IDENTIFICADOR <DEC_VAR> ;
-        {                       //<DECLARACION_VAR> -->   <TIPO_DATO> [] IDENTIFICADOR <Algo> ;
+        public void DECLARACION()//<DECLARACION_VAR> -->   <TIPO_DATO> <DECLARACIONPRIM> 
+        {                       
             TIPO_DATO();
+            DECLARACIONPRIM();
+            emparejar(Token.Tipo.SIGNO_PUNTOYCOMA);
+            cadenaTraducida += "\n";
+        }
 
+        public void DECLARACIONPRIM()//<DECLARACION_VAR> -->   IDENTIFICADOR <DEC_VAR> ; | [] IDENTIFICADOR <DEC_ARRAY> ;
+        {
             if (tokenActual.GetTipo() == Token.Tipo.IDENTIFICADOR)
             {
-                cadenaAux = tokenActual.GetValor();//cadenaTraducida += cadenaAux;
-                ListaIDSAux.AddLast(cadenaAux);//---------------------------------
+                cadenaAux = tokenActual.GetValor();
+                ListaIDSAux.AddLast(cadenaAux);
                 emparejar(Token.Tipo.IDENTIFICADOR);
                 DEC_VAR();
-                cadenaTraducida += cadenaAux;
-                emparejar(Token.Tipo.SIGNO_PUNTOYCOMA);
-                cadenaTraducida +="\n";
+                //emparejar(Token.Tipo.SIGNO_PUNTOYCOMA);
+                //cadenaTraducida += "\n";
             }
             else if (tokenActual.GetTipo() == Token.Tipo.CORCHETE_IZQ)
             {
                 emparejar(Token.Tipo.CORCHETE_IZQ);
                 emparejar(Token.Tipo.CORCHETE_DER);
+                cadenaAux = tokenActual.GetValor();
+                ListaIDSAux.AddLast(cadenaAux);
                 emparejar(Token.Tipo.IDENTIFICADOR);
                 DEC_ARRAY();
-                //cadenaTraducida.Append(cadenaAux);
                 cadenaTraducida += cadenaAux;
-                cadenaAux = tokenActual.GetValor();
-                emparejar(Token.Tipo.SIGNO_PUNTOYCOMA);
+                //emparejar(Token.Tipo.SIGNO_PUNTOYCOMA);
+                //cadenaTraducida += "\n";
             }
         }
 
-        #region var
-        public void DEC_VAR()
+        #region VAR
+        public void DEC_VAR()//<DEC_VAR>--> , <DEC_VAR> | = <EXPRESION>  | epsilon
         {
             if (tokenActual.GetTipo() == Token.Tipo.SIGNO_COMA)
             {
+                cadenaAux += tokenActual.GetValor();
                 emparejar(Token.Tipo.SIGNO_COMA);
-                ListaIDSAux.AddLast(tokenActual.GetValor());//--------------------------
+                cadenaAux += tokenActual.GetValor();
+                ListaIDSAux.AddLast(tokenActual.GetValor());
                 emparejar(Token.Tipo.IDENTIFICADOR);
                 DEC_VAR();
-            } else if (tokenActual.GetTipo() == Token.Tipo.SIGNO_IGUAL)
+            } 
+            else if (tokenActual.GetTipo() == Token.Tipo.SIGNO_IGUAL)
             {
-                cadenaTraducida += cadenaAux;
-                cadenaAux = tokenActual.GetValor();
+                cadenaTraducida += cadenaAux;//ACÁ YA SÉ QUE LO VA IGUALAR A ALGO
+                cadenaAux = tokenActual.GetValor(); cadenaTraducida += cadenaAux;//GUARDO EL IGUAL Y LO AÑADO DE UNA VEZ
                 emparejar(Token.Tipo.SIGNO_IGUAL);
                 EXPRESION();
+                if (tokenActual.GetTipo() == Token.Tipo.SIGNO_COMA)
+                {
+                    DEC_VAR();
+                }
+                cadenaTraducida += cadenaAux;   
             }
         }
-
         public void EXPRESION()
         {
             TERMINO();
             EXPRESIONP();
         }
-
         public void TERMINO()
         {
             FACTOR();
             TERMINOPRIM();
         }
-
         public void EXPRESIONP()
         {
             if (tokenActual.GetTipo() == Token.Tipo.SIGNO_MAS)
@@ -194,7 +205,6 @@ namespace LFP_Proyecto1
                 EXPRESIONP();
             }
         } 
-
         public void TERMINOPRIM()
         {
             if (tokenActual.GetTipo() == Token.Tipo.SIGNO_POR)
@@ -210,21 +220,17 @@ namespace LFP_Proyecto1
                 TERMINOPRIM();
             }
         }
-
         public void FACTOR()
         {
             if (tokenActual.GetTipo() == Token.Tipo.PARENTESIS_IZQ)
             {
-                //cadenaTraducida.Append(cadenaAux);
-                cadenaTraducida+=cadenaAux;
                 cadenaAux = tokenActual.GetValor();
-               
+                valorVAR = cadenaAux;
+                asignarValor();
                 emparejar(Token.Tipo.PARENTESIS_IZQ);
             }
             else if (tokenActual.GetTipo() == Token.Tipo.NUMERO_ENTERO)
             {
-                //cadenaTraducida.Append(cadenaAux);
-                cadenaTraducida+=cadenaAux;
                 cadenaAux = tokenActual.GetValor();
                 valorVAR = cadenaAux;
                 asignarValor();
@@ -232,28 +238,42 @@ namespace LFP_Proyecto1
             }
             else if (tokenActual.GetTipo() == Token.Tipo.NUMERO_REAL)
             {
+                cadenaAux = tokenActual.GetValor();
+                valorVAR = cadenaAux;
+                asignarValor();
                 emparejar(Token.Tipo.NUMERO_REAL);
             }
             else if (tokenActual.GetTipo() == Token.Tipo.IDENTIFICADOR)
             {
+                cadenaAux = tokenActual.GetValor();
+                valorVAR = cadenaAux;
+                asignarValor();
                 emparejar(Token.Tipo.IDENTIFICADOR);
             }
             else if (tokenActual.GetTipo() == Token.Tipo.CADENA)
             {
+                cadenaAux = tokenActual.GetValor();
+                valorVAR = cadenaAux;
+                asignarValor();
                 emparejar(Token.Tipo.CADENA);
             }
             else if (tokenActual.GetTipo() == Token.Tipo.PR_TRUE)
             {
+                cadenaAux = tokenActual.GetValor();
+                valorVAR = cadenaAux;
+                asignarValor();
                 emparejar(Token.Tipo.PR_TRUE);
             }
             else if (tokenActual.GetTipo() == Token.Tipo.PR_FALSE)
             {
+                cadenaAux = tokenActual.GetValor();
+                valorVAR = cadenaAux;
+                asignarValor();
                 emparejar(Token.Tipo.PR_FALSE);
             }
             else 
             { 
                 Console.WriteLine("Error se esperaba una expresión");
-                controlToken--;
                 if (tokenActual.GetTipoE() != Token.Tipo.ULTIMO)
                 {
                     controlToken += 1;
@@ -263,7 +283,6 @@ namespace LFP_Proyecto1
                 }
             }
         }
-
         #endregion
 
         public void DEC_ARRAY()
@@ -281,11 +300,6 @@ namespace LFP_Proyecto1
             }
         }
         
-        public void ASIGNACION()
-        {
-            Console.WriteLine("ASIGNO ALGO");
-        }
-
         public void TIPO_DATO()
         {
             if (tokenActual.GetTipo() == Token.Tipo.PR_INT)
@@ -320,6 +334,30 @@ namespace LFP_Proyecto1
         }
         #endregion
 
+        #region ASIGNACION
+        public void ASIGNACION()
+        {
+            if (tokenActual.GetTipo() == Token.Tipo.IDENTIFICADOR)
+            {
+                cadenaAux = tokenActual.GetValor();
+                ListaIDSAux.AddLast(cadenaAux);
+                emparejar(Token.Tipo.IDENTIFICADOR);
+                ASIG_VAR();
+                emparejar(Token.Tipo.SIGNO_PUNTOYCOMA);
+                cadenaTraducida += "\n";
+            }
+        }
+
+        public void ASIG_VAR()
+        {
+            cadenaTraducida += cadenaAux;//ACÁ YA SÉ QUE LO VA IGUALAR A ALGO
+            cadenaAux = tokenActual.GetValor(); cadenaTraducida += cadenaAux;//GUARDO EL IGUAL Y LO AÑADO DE UNA VEZ
+            emparejar(Token.Tipo.SIGNO_IGUAL);
+            EXPRESION();
+            cadenaTraducida += cadenaAux;
+        }
+        #endregion
+
         #region IMPRIMIR
         public void IMPRIMIR()
         {
@@ -341,11 +379,20 @@ namespace LFP_Proyecto1
         }
         #endregion
 
-#region SENTENCIAS Y CICLOS
         public void SENTENCIA_IF()
         {
+            emparejar(Token.Tipo.PR_IF);
+            emparejar(Token.Tipo.PARENTESIS_IZQ);
+            EXPRESION();
 
+
+            emparejar(Token.Tipo.PARENTESIS_DER);
+            emparejar(Token.Tipo.LLAVE_IZQ);
+            INSTRUCCION();
+            emparejar(Token.Tipo.LLAVE_DER);
         }
+
+        #region SENTENCIAS Y CICLOS PENDIENTES
 
         public void SENTENCIA_SWITCH()
         {
@@ -386,6 +433,8 @@ namespace LFP_Proyecto1
             {
                 ListaSimbolos.AddLast(new Simbolo(tipoActual, item, valorVAR));
             }
+            ListaIDSAux.Clear();
+            valorVAR = "";
         }
 
         public String getTipoParaError(Token.Tipo tip)

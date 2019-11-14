@@ -56,6 +56,7 @@ namespace LFP_Proyecto1
                         {
                             estado = 3;
                         }
+
                         #region Comparaciones directas
                         else if (c.CompareTo('{') == 0)
                         {
@@ -106,9 +107,8 @@ namespace LFP_Proyecto1
                         else if (c.CompareTo('!') == 0)
                         {
                             auxlex += c;
-                            AgregarToken(Token.Tipo.SIGNO_POR);
+                            AgregarToken(Token.Tipo.SIGNO_NEGACION);
                         }
-                        
                         else if (c.CompareTo('/') == 0)
                         {
                             estado = 5;
@@ -116,24 +116,24 @@ namespace LFP_Proyecto1
                         else if (c.CompareTo('-') == 0)
                         {
                             auxlex += c;
-                            AgregarToken(Token.Tipo.SIGNO_PUNTOYCOMA);
+                            AgregarToken(Token.Tipo.SIGNO_MENOS);
                         }
                         else if (c.CompareTo('+') == 0)
                         {
                             auxlex += c;
-                            AgregarToken(Token.Tipo.SIGNO_POR);
+                            AgregarToken(Token.Tipo.SIGNO_MAS);
                         }
                         else if (c.CompareTo('.') == 0)
                         {
                             auxlex += c;
-                            AgregarToken(Token.Tipo.SIGNO_DOSPUNTOS);
+                            AgregarToken(Token.Tipo.SIGNO_PUNTO);
                         }
                         else if (c.CompareTo(',') == 0)
                         {
                             auxlex += c;
-                            AgregarToken(Token.Tipo.SIGNO_PUNTOYCOMA);
+                            AgregarToken(Token.Tipo.SIGNO_COMA);
                         }
-                        else if (c.CompareTo('*') == 0)//<---------
+                        else if (c.CompareTo('*') == 0)
                         {
                             auxlex += c;
                             AgregarToken(Token.Tipo.SIGNO_POR);
@@ -149,6 +149,7 @@ namespace LFP_Proyecto1
                             AgregarToken(Token.Tipo.SIGNO_PUNTOYCOMA);
                         }
                         #endregion
+
                         else if (c.CompareTo(' ') == 0 || c.CompareTo('\t') == 0)
                         {
                             auxlex = "";

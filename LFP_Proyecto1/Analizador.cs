@@ -101,13 +101,13 @@ namespace LFP_Proyecto1
                         }
                         else if (c.CompareTo('=') == 0)
                         {
-                            auxlex += c;
-                            AgregarToken(Token.Tipo.SIGNO_IGUAL);
+                            auxlex += c;estado = 9;
+                            //AgregarToken(Token.Tipo.SIGNO_IGUAL);
                         }
                         else if (c.CompareTo('!') == 0)
                         {
                             auxlex += c;
-                            AgregarToken(Token.Tipo.SIGNO_NEGACION);
+                            estado = 8;//AgregarToken(Token.Tipo.SIGNO_NEGACION);
                         }
                         else if (c.CompareTo('/') == 0)
                         {
@@ -177,7 +177,7 @@ namespace LFP_Proyecto1
 
                     case 1:
                         #region PALABRAS RESERVADAS
-                        if (Char.IsLetter(c))
+                        if (Char.IsLetter(c) || Char.IsDigit(c) ||c.CompareTo('_')==0)
                         {
                             estado = 1;
                             auxlex += c;
@@ -263,7 +263,7 @@ namespace LFP_Proyecto1
                             }
                             else if (auxlex.Equals("break"))
                             {
-                                AgregarToken(Token.Tipo.PR_MAIN);
+                                AgregarToken(Token.Tipo.PR_BREAK);
                             }
                             else if (auxlex.Equals("default"))
                             {
@@ -385,6 +385,31 @@ namespace LFP_Proyecto1
                         }
                         break;
                         #endregion
+                    case 8:
+                        auxlex += c;
+                        if (c.CompareTo('=')==0)
+                        {
+                            AgregarToken(Token.Tipo.SIGNO_NEGACION);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Error lexico con: " + auxlex);
+                            AgregarGranError(Error.Tipo.PALABRA_DESCONOCIDA);
+                        }
+                        break;
+                    case 9:
+                        if (c.CompareTo('=') == 0)
+                        {
+                            auxlex += c;
+                            AgregarToken(Token.Tipo.SIGNO_IGUALDAD);
+                        }
+                        else
+                        {
+                            columna--;
+                            i--;
+                            AgregarToken(Token.Tipo.SIGNO_IGUAL);
+                        }
+                        break;
                 }
             }
             return SalidaTokens;

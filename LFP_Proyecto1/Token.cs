@@ -57,6 +57,7 @@ namespace LFP_Proyecto1
             SIGNO_DIVIDIDO,
             SIGNO_MENOS,
             SIGNO_MAS,
+            SIGNO_IGUALDAD,
             //
             SIGNO_POR,
             SIGNO_DOSPUNTOS,
@@ -181,24 +182,26 @@ namespace LFP_Proyecto1
                 case Tipo.SIGNO_MENORQUE:
                     return "Signo Menor Que";
                 case Tipo.SIGNO_MAYORQUE:
-                    return "Signo Dos Puntos";
+                    return "Signo Mayor Que";
                 case Tipo.SIGNO_IGUAL:
-                    return "Signo Punto y Coma";
+                    return "Signo Igual";
                 case Tipo.SIGNO_NEGACION:
-                    return "Signo Menor Que";
+                    return "Signo Negación";
                 case Tipo.SIGNO_DIVIDIDO:
-                    return "Signo Menor Que";
+                    return "Signo Divido";
                 case Tipo.SIGNO_MENOS:
-                    return "Signo Dos Puntos";
+                    return "Signo Menos";
                 case Tipo.SIGNO_MAS:
-                    return "Signo Punto y Coma";
+                    return "Signo Mas";
                 case Tipo.SIGNO_PUNTO:
-                    return "Signo Dos Puntos";
+                    return "Signo Punto";
                 case Tipo.SIGNO_COMA:
-                    return "Signo Punto y Coma";
+                    return "Signo Coma";
+                case Tipo.SIGNO_IGUALDAD:
+                    return "Signo de Igualdad";
 
                 case Tipo.SIGNO_POR:
-                    return "Signo Menor Que";
+                    return "Signo Por";
                 case Tipo.SIGNO_DOSPUNTOS:
                     return "Signo Dos Puntos";
                 case Tipo.SIGNO_PUNTOYCOMA:

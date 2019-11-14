@@ -18,9 +18,11 @@ namespace LFP_Proyecto1
         private LinkedList<Simbolo> ListaSimbolos;
         private LinkedList<String> ListaIDSAux;
         Simbolo.Tipo tipoActual = Simbolo.Tipo.VAR_STRING;
+        //private Dictionary<String, string> myDictionary<String, String>();
         String cadenaTraducida = "";
         String cadenaAux = "";
         String valorVAR;
+        int noAmbitos = 0;
         
         public AnalizadorSintactico()
         {
@@ -67,8 +69,8 @@ namespace LFP_Proyecto1
                 tokenActual.GetTipo() == Token.Tipo.PR_STRING || tokenActual.GetTipo() == Token.Tipo.PR_FLOAT ||
                 tokenActual.GetTipo() == Token.Tipo.PR_CHAR 
                 || tokenActual.GetTipo() == Token.Tipo.IDENTIFICADOR || tokenActual.GetTipo() == Token.Tipo.PR_CONSOLE 
-                || tokenActual.GetTipo() == Token.Tipo.PR_SWITCH || tokenActual.GetTipo() == Token.Tipo.PR_FOR 
-                || tokenActual.GetTipo() == Token.Tipo.PR_WHILE) {
+                || tokenActual.GetTipo() == Token.Tipo.PR_SWITCH || tokenActual.GetTipo() == Token.Tipo.PR_IF
+                || tokenActual.GetTipo() == Token.Tipo.PR_FOR || tokenActual.GetTipo() == Token.Tipo.PR_WHILE) {
                 Console.WriteLine("CUMPLIÓ CON SENTENCIA");
                 SENTENCIAS();
                 INSTRUCCION();
@@ -77,10 +79,13 @@ namespace LFP_Proyecto1
         public void SENTENCIAS()
         {
             if (tokenActual.GetTipo() == Token.Tipo.PR_BOOL || tokenActual.GetTipo() == Token.Tipo.PR_INT ||
-                tokenActual.GetTipo() == Token.Tipo.PR_STRING || tokenActual.GetTipo() == Token.Tipo.PR_FLOAT ||
-                tokenActual.GetTipo() == Token.Tipo.PR_CHAR)
+                tokenActual.GetTipo() == Token.Tipo.PR_STRING || tokenActual.GetTipo() == Token.Tipo.PR_CHAR)
             {
                 DECLARACION();
+            }
+            else if (tokenActual.GetTipo() == Token.Tipo.PR_FLOAT)
+            {
+                DECLARACIONF();
             }
             else if(tokenActual.GetTipo()== Token.Tipo.IDENTIFICADOR)
             {
@@ -92,6 +97,7 @@ namespace LFP_Proyecto1
             }
             else if (tokenActual.GetTipo() == Token.Tipo.PR_IF)
             {
+                Console.WriteLine("WAITING");
                 SENTENCIA_IF();
             }
             else if (tokenActual.GetTipo() == Token.Tipo.PR_SWITCH)
@@ -122,7 +128,7 @@ namespace LFP_Proyecto1
         #endregion
 
         #region DECLARACION
-        public void DECLARACION()//<DECLARACION_VAR> -->   <TIPO_DATO> <DECLARACIONPRIM> 
+        public void DECLARACION()//<DECLARACION> -->   <TIPO_DATO> <DECLARACIONPRIM> 
         {                       
             TIPO_DATO();
             DECLARACIONPRIM();
@@ -130,11 +136,37 @@ namespace LFP_Proyecto1
             cadenaTraducida += "\n";
         }
 
-        public void DECLARACIONPRIM()//<DECLARACION_VAR> -->   IDENTIFICADOR <DEC_VAR> ; | [] IDENTIFICADOR <DEC_ARRAY> ;
+        public void DECLARACIONF()
+        {
+            emparejar(Token.Tipo.PR_FLOAT);
+            DECLARACIONPRIM();
+            //Console.WriteLine("Error se esperaba el inicio de una Instrucción");
+            //controlToken--;
+            if (tokenActual.GetTipoE() == Token.Tipo.IDENTIFICADOR && tokenActual.GetValor().Equals("f"))
+            {
+                //if (tokenActual.GetValor().CompareTo('f')==0)
+                //{
+                //  emparejar(Token.Tipo.IDENTIFICADOR);
+                ///}
+                //else { 
+                emparejar(Token.Tipo.IDENTIFICADOR);
+                //}
+            }
+            else
+            {
+                controlToken += 1;
+                tokenActual = listaTok.ElementAt(controlToken);
+                String descripcionError = "Error se esperaba letra 'f' luego del valor";
+                SalidaErrores.AddLast(new Error(descripcionError, tokenActual.GetFila(), tokenActual.GetColumna()));
+            }
+            emparejar(Token.Tipo.SIGNO_PUNTOYCOMA);
+            cadenaTraducida += "\n";
+        }
+        public void DECLARACIONPRIM()//<DECLARACIONPRIM> -->   IDENTIFICADOR <DEC_VAR> | [] IDENTIFICADOR <DEC_ARRAY> 
         {
             if (tokenActual.GetTipo() == Token.Tipo.IDENTIFICADOR)
             {
-                cadenaAux = tokenActual.GetValor();
+                cadenaAux = indentacion() + tokenActual.GetValor();
                 ListaIDSAux.AddLast(cadenaAux);
                 emparejar(Token.Tipo.IDENTIFICADOR);
                 DEC_VAR();
@@ -152,6 +184,17 @@ namespace LFP_Proyecto1
                 cadenaTraducida += cadenaAux;
                 //emparejar(Token.Tipo.SIGNO_PUNTOYCOMA);
                 //cadenaTraducida += "\n";
+            }
+            else
+            {
+                Console.WriteLine("Error se esperaba un Identificador o un [ ");
+                if (tokenActual.GetTipoE() != Token.Tipo.ULTIMO)
+                {
+                    controlToken += 1;
+                    tokenActual = listaTok.ElementAt(controlToken);
+                    String descripcionError = "Error se esperaba un Identificador o un [ ";
+                    SalidaErrores.AddLast(new Error(descripcionError, tokenActual.GetFila(), tokenActual.GetColumna()));
+                }
             }
         }
 
@@ -172,50 +215,100 @@ namespace LFP_Proyecto1
                 cadenaTraducida += cadenaAux;//ACÁ YA SÉ QUE LO VA IGUALAR A ALGO
                 cadenaAux = tokenActual.GetValor(); cadenaTraducida += cadenaAux;//GUARDO EL IGUAL Y LO AÑADO DE UNA VEZ
                 emparejar(Token.Tipo.SIGNO_IGUAL);
-                EXPRESION();
+                MEGAEXPRESION();
                 if (tokenActual.GetTipo() == Token.Tipo.SIGNO_COMA)
                 {
                     DEC_VAR();
                 }
-                cadenaTraducida += cadenaAux;   
+                //cadenaTraducida += cadenaAux;   
             }
         }
+
+        public void MEGAEXPRESION()
+        {
+            EXPRESION();
+            COMPARADOR();
+        }
+
+        public void COMPARADOR()
+        {
+            if (tokenActual.GetTipo() == Token.Tipo.SIGNO_MAYORQUE)
+            {
+                cadenaAux = tokenActual.GetValor();
+                emparejar(Token.Tipo.SIGNO_MAYORQUE);MEGAEXPRESION();
+            }
+            else if (tokenActual.GetTipo() == Token.Tipo.SIGNO_MENORQUE)
+            {
+                cadenaAux = tokenActual.GetValor();
+                emparejar(Token.Tipo.SIGNO_MENORQUE);EXPRESION();
+            }
+            else if (tokenActual.GetTipo() == Token.Tipo.SIGNO_NEGACION)
+            {
+                cadenaAux = tokenActual.GetValor();
+                emparejar(Token.Tipo.SIGNO_NEGACION); EXPRESION();
+            }
+            else if (tokenActual.GetTipo() == Token.Tipo.SIGNO_IGUALDAD)
+            {
+                cadenaAux = tokenActual.GetValor();
+                emparejar(Token.Tipo.SIGNO_IGUALDAD); EXPRESION();
+            }
+            else if (tokenActual.GetTipo() == Token.Tipo.PR_TRUE)
+            {
+                cadenaAux = tokenActual.GetValor();
+                emparejar(Token.Tipo.PR_TRUE); //EXPRESION();
+            }
+            else if (tokenActual.GetTipo() == Token.Tipo.PR_FALSE)
+            {
+                cadenaAux = tokenActual.GetValor();
+                emparejar(Token.Tipo.PR_FALSE); //EXPRESION();
+            }
+
+        }
+
         public void EXPRESION()
         {
             TERMINO();
-            EXPRESIONP();
+            EXPRESIONPRIM();
         }
         public void TERMINO()
         {
             FACTOR();
             TERMINOPRIM();
         }
-        public void EXPRESIONP()
+        public void EXPRESIONPRIM()
         {
             if (tokenActual.GetTipo() == Token.Tipo.SIGNO_MAS)
             {
+                cadenaTraducida += tokenActual.GetValor();
                 emparejar(Token.Tipo.SIGNO_MAS);
                 TERMINO();
-                EXPRESIONP();
+                EXPRESIONPRIM();
             }
             else if (tokenActual.GetTipo() == Token.Tipo.SIGNO_MENOS)
             {
+                cadenaTraducida += tokenActual.GetValor();
                 emparejar(Token.Tipo.SIGNO_MENOS);
                 TERMINO();
-                EXPRESIONP();
+                EXPRESIONPRIM();
             }
         } 
         public void TERMINOPRIM()
         {
             if (tokenActual.GetTipo() == Token.Tipo.SIGNO_POR)
             {
+                cadenaTraducida += tokenActual.GetValor();
                 emparejar(Token.Tipo.SIGNO_POR);
+                //TERMINO();
+                //EXPRESIONPRIM();
                 FACTOR();
                 TERMINOPRIM();
             }
             else if (tokenActual.GetTipo() == Token.Tipo.SIGNO_DIVIDIDO)
             {
+                cadenaTraducida += tokenActual.GetValor();
                 emparejar(Token.Tipo.SIGNO_DIVIDIDO);
+                //TERMINO();
+                //EXPRESIONPRIM();
                 FACTOR();
                 TERMINOPRIM();
             }
@@ -225,13 +318,15 @@ namespace LFP_Proyecto1
             if (tokenActual.GetTipo() == Token.Tipo.PARENTESIS_IZQ)
             {
                 cadenaAux = tokenActual.GetValor();
+                cadenaTraducida += cadenaAux;
                 valorVAR = cadenaAux;
-                asignarValor();
-                emparejar(Token.Tipo.PARENTESIS_IZQ);
+                //asignarValor();
+                emparejar(Token.Tipo.PARENTESIS_IZQ); MEGAEXPRESION(); emparejar(Token.Tipo.PARENTESIS_DER);
             }
             else if (tokenActual.GetTipo() == Token.Tipo.NUMERO_ENTERO)
             {
                 cadenaAux = tokenActual.GetValor();
+                cadenaTraducida += cadenaAux;
                 valorVAR = cadenaAux;
                 asignarValor();
                 emparejar(Token.Tipo.NUMERO_ENTERO);
@@ -239,6 +334,7 @@ namespace LFP_Proyecto1
             else if (tokenActual.GetTipo() == Token.Tipo.NUMERO_REAL)
             {
                 cadenaAux = tokenActual.GetValor();
+                cadenaTraducida += cadenaAux;
                 valorVAR = cadenaAux;
                 asignarValor();
                 emparejar(Token.Tipo.NUMERO_REAL);
@@ -350,7 +446,7 @@ namespace LFP_Proyecto1
 
         public void ASIG_VAR()
         {
-            cadenaTraducida += cadenaAux;//ACÁ YA SÉ QUE LO VA IGUALAR A ALGO
+            cadenaTraducida += indentacion()+ cadenaAux;//ACÁ YA SÉ QUE LO VA IGUALAR A ALGO
             cadenaAux = tokenActual.GetValor(); cadenaTraducida += cadenaAux;//GUARDO EL IGUAL Y LO AÑADO DE UNA VEZ
             emparejar(Token.Tipo.SIGNO_IGUAL);
             EXPRESION();
@@ -361,52 +457,172 @@ namespace LFP_Proyecto1
         #region IMPRIMIR
         public void IMPRIMIR()
         {
-            if (tokenActual.GetTipo() == Token.Tipo.PR_CONSOLE)
-            {
-                emparejar(Token.Tipo.PR_CONSOLE);
-                emparejar(Token.Tipo.SIGNO_PUNTO);
-                emparejar(Token.Tipo.PR_WRITELINE);
-                emparejar(Token.Tipo.PARENTESIS_IZQ);
-                CONTENIDOIMPRESION();
-                emparejar(Token.Tipo.PARENTESIS_DER);
-
-            }
+            emparejar(Token.Tipo.PR_CONSOLE);
+            emparejar(Token.Tipo.SIGNO_PUNTO);
+            emparejar(Token.Tipo.PR_WRITELINE);
+            emparejar(Token.Tipo.PARENTESIS_IZQ);
+            CONTENIDOIMPRESION();
+            emparejar(Token.Tipo.PARENTESIS_DER);
+            emparejar(Token.Tipo.SIGNO_PUNTOYCOMA);
         }
 
         public void CONTENIDOIMPRESION()
         {
-            Console.WriteLine("CONTENIDO");
+            Console.WriteLine();
+            EXPRESION();
+            PLUS();
+        }
+
+        public void PLUS()
+        {
+            if (tokenActual.GetTipo()==Token.Tipo.SIGNO_MAS)
+            {
+                emparejar(Token.Tipo.SIGNO_MAS);
+                EXPRESION();
+                PLUS();
+            }
         }
         #endregion
 
+        #region SENTENCIA IF
         public void SENTENCIA_IF()
         {
+            cadenaTraducida += indentacion()+tokenActual.GetValor();
             emparejar(Token.Tipo.PR_IF);
+            noAmbitos++;
             emparejar(Token.Tipo.PARENTESIS_IZQ);
-            EXPRESION();
-
-
+            MEGAEXPRESION();
             emparejar(Token.Tipo.PARENTESIS_DER);
             emparejar(Token.Tipo.LLAVE_IZQ);
+            cadenaTraducida += "\n";
             INSTRUCCION();
-            emparejar(Token.Tipo.LLAVE_DER);
+            emparejar(Token.Tipo.LLAVE_DER);noAmbitos--;
+            SENTENCIA_ELSE();
         }
+
+        public void SENTENCIA_ELSE()
+        {
+            if (tokenActual.GetTipo()==Token.Tipo.PR_ELSE)
+            {
+                cadenaTraducida += indentacion() + tokenActual.GetValor()+":";
+                emparejar(Token.Tipo.PR_ELSE);
+                emparejar(Token.Tipo.LLAVE_IZQ);
+                cadenaTraducida += "\n";
+                INSTRUCCION();
+                emparejar(Token.Tipo.LLAVE_DER);noAmbitos--;
+            }
+        }
+        #endregion
 
         #region SENTENCIAS Y CICLOS PENDIENTES
 
         public void SENTENCIA_SWITCH()
         {
+            //cadenaTraducida += indentacion() + tokenActual.GetValor();
+            emparejar(Token.Tipo.PR_SWITCH);
+            noAmbitos++;
+            emparejar(Token.Tipo.PARENTESIS_IZQ);
+            MEGAEXPRESION();
+            emparejar(Token.Tipo.PARENTESIS_DER);
+            emparejar(Token.Tipo.LLAVE_IZQ);
+            //cadenaTraducida += "\n";
+            CASES();
+            //CASEDEFAULT();
+            emparejar(Token.Tipo.LLAVE_DER);
+        }
 
+        public void CASES()
+        {
+            if (tokenActual.GetTipo()==Token.Tipo.PR_CASE)
+            {
+                CASE();
+                CASES();
+            }
+            else
+            {
+                CASEDEFAULT();
+            }
+        }
+
+        public void CASE()
+        {
+            emparejar(Token.Tipo.PR_CASE);
+            MEGAEXPRESION();
+            emparejar(Token.Tipo.SIGNO_DOSPUNTOS);
+            INSTRUCCION();
+            emparejar(Token.Tipo.PR_BREAK);
+            emparejar(Token.Tipo.SIGNO_PUNTOYCOMA);
+        }
+
+        public void CASEDEFAULT()
+        {
+            if (tokenActual.GetTipo()==Token.Tipo.PR_DEFAULT)
+            {
+                emparejar(Token.Tipo.PR_DEFAULT);
+                emparejar(Token.Tipo.SIGNO_DOSPUNTOS);
+                INSTRUCCION();
+                emparejar(Token.Tipo.PR_BREAK);
+                emparejar(Token.Tipo.SIGNO_PUNTOYCOMA);
+            }
+            
         }
 
         public void CICLO_FOR()
         {
+            cadenaTraducida += indentacion() + tokenActual.GetValor();
+            emparejar(Token.Tipo.PR_FOR);
+            noAmbitos++;
+            emparejar(Token.Tipo.PARENTESIS_IZQ);
+            INICIALIZADOR();
+            emparejar(Token.Tipo.SIGNO_PUNTOYCOMA);
+            //CONDICION
+            emparejar(Token.Tipo.SIGNO_PUNTOYCOMA);
+            //INICIALIZACION
+            emparejar(Token.Tipo.PARENTESIS_DER);
+            emparejar(Token.Tipo.LLAVE_IZQ);
+            cadenaTraducida += "\n";
+            INSTRUCCION();
+            emparejar(Token.Tipo.LLAVE_DER);
+        }
 
+        public void INICIALIZADOR()
+        {
+            if (tokenActual.GetTipo() == Token.Tipo.PR_BOOL || tokenActual.GetTipo() == Token.Tipo.PR_INT ||
+                tokenActual.GetTipo() == Token.Tipo.PR_STRING || tokenActual.GetTipo() == Token.Tipo.PR_FLOAT ||
+                tokenActual.GetTipo() == Token.Tipo.PR_CHAR)
+            {
+                DECLARACION();
+            }
+            else if (tokenActual.GetTipo() == Token.Tipo.IDENTIFICADOR)
+            {
+                ASIGNACION();
+            }
+            else
+            {
+                Console.WriteLine("Error se esperaba el inicio de una Instrucción");
+                //controlToken--;
+                if (tokenActual.GetTipoE() != Token.Tipo.ULTIMO)
+                {
+                    controlToken += 1;
+                    tokenActual = listaTok.ElementAt(controlToken);
+                    String descripcionError = "Error se esperaba el inicio de una Instrucción";
+                    SalidaErrores.AddLast(new Error(descripcionError, tokenActual.GetFila(), tokenActual.GetColumna()));
+                }
+            }
         }
 
         public void CICLO_WHILE()
         {
-
+            cadenaTraducida += indentacion() + tokenActual.GetValor();
+            emparejar(Token.Tipo.PR_WHILE);
+            noAmbitos++;
+            emparejar(Token.Tipo.PARENTESIS_IZQ);
+            MEGAEXPRESION();
+            emparejar(Token.Tipo.PARENTESIS_DER);
+            emparejar(Token.Tipo.LLAVE_IZQ);
+            cadenaTraducida += "\n";
+            INSTRUCCION();
+            emparejar(Token.Tipo.LLAVE_DER);noAmbitos--;
         }
         #endregion
 
@@ -435,6 +651,28 @@ namespace LFP_Proyecto1
             }
             ListaIDSAux.Clear();
             valorVAR = "";
+        }
+
+        public string indentacion()
+        {
+            string a = "";
+            for (int i = 0; i < noAmbitos; i++)
+            {
+                a += "    ";
+            }
+            return a;
+
+        }
+
+        public string indentacion(int reduccion)
+        {
+            string a = "";
+            for (int i = 0; i < noAmbitos-reduccion; i++)
+            {
+                a += "    ";
+            }
+            return a;
+
         }
 
         public String getTipoParaError(Token.Tipo tip)

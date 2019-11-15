@@ -21,17 +21,9 @@ namespace LFP_Proyecto1
         string htmlPathErrores = "";
         Boolean hayErrores = true, hayMasErrores=true;
 
-        string pdfPath = "";
-        string imgLoadingPath = "";
+        //string pdfPath = "";
+        //string imgLoadingPath = "";
 
-        private int estado;
-        private String auxlex;
-        private string nombreGrafica="";
-        private string selec = "";
-        private string nombre = "";
-        private int poblacion=0;
-        private int satEscogida = 0;
-        Pais miPais;
         #endregion
 
         #region Cosas que no son de mi interés
@@ -53,7 +45,9 @@ namespace LFP_Proyecto1
                     {
                         string nombre = nombreA_Entrada.Substring(nombreA_Entrada.LastIndexOf(@"\") + 1);
                         StreamReader lector = new StreamReader(nombreA_Entrada);
+                        //fastColoredTextBox1.Text = lector.ReadToEnd();
                         richTextBox1.Text = lector.ReadToEnd();
+
                         lector.Close();
                     }
                     else
@@ -80,7 +74,7 @@ namespace LFP_Proyecto1
                 {
                     nombreA_Entrada = gselector.FileName;
                     StreamWriter escritor = new StreamWriter(nombreA_Entrada);
-                    foreach (object line in richTextBox1.Lines)
+                    foreach (object line in  richTextBox1.Lines) //fastColoredTextBox1.Lines)//
                     { escritor.WriteLine(line); }
                     escritor.Close();
                 }
@@ -238,412 +232,11 @@ namespace LFP_Proyecto1
         }
 
         #region EN PAUSA
-        void ListaTokensPintados(String entrada, Continente ListaContinentes)
-        {
-            entrada = entrada + "#"; //NOS INDICA CUANDO LLEGAMOS AL FINAL DE A CADENA
-            estado = 0;
-            auxlex = "";
-            Char c;
-            for (int i = 0; i <= entrada.Length - 1; i++)
-            {
-                c = entrada.ElementAt(i);
-                switch (estado)
-                {
-                    #region ESTADO 0
-                    case 0:
-                        if (Char.IsLetter(c))
-                        {
-                            estado = 1;
-                            auxlex += c;
-                        }
-                        else if (Char.IsDigit(c))
-                        {
-                            estado = 2;
-                            auxlex += c;
-                        }
-                        else if (c.CompareTo('"') == 0)
-                        {
-                            estado = 3;
-                            auxlex += c;
-                        }
-                        #region Comparaciones directas
-                        else if (c.CompareTo('{') == 0)
-                        {
-                            auxlex += c;
-                            Pintar3(i, auxlex, 4);
-                            estado = 0;
-                            auxlex = "";
-                        }
-                        else if (c.CompareTo('}') == 0)
-                        {
-
-                            auxlex += c;
-                            Pintar3(i, auxlex, 4);
-                            estado = 0;
-                            auxlex = "";
-                        }
-                        else if (c.CompareTo('%') == 0 || c.CompareTo(':') == 0)
-                        {
-                            auxlex += c;
-                            estado = 0;
-                            auxlex = "";
-                        }
-                        else if (c.CompareTo(';') == 0)
-                        {
-                            auxlex += c;
-                            Pintar3(i, auxlex, 5);
-                            estado = 0;
-                            auxlex = "";
-                        }
-                        #endregion
-                        else if (c.CompareTo(' ') == 0 || c.CompareTo('\t') == 0 || c.CompareTo('\n') == 0)
-                        {
-                            auxlex = "";
-                            estado = 0;
-                        }
-                        break;
-                    #endregion
-
-                    case 1:
-                        #region PALABRAS RESERVADAS
-                        if (Char.IsLetter(c))
-                        {
-                            estado = 1;
-                            auxlex += c;
-                        }
-                        else
-                        {
-                            i -= 1;
-                            Pintar3(i - auxlex.Length + 1, auxlex, 1);//ESA i ME GENERA DUDA
-                            estado = 0;
-                            auxlex = "";
-                        }
-                        break;
-                    #endregion
-                    case 2:
-                        #region DIGITOS
-                        if (Char.IsDigit(c))
-                        {
-                            estado = 2;
-                            auxlex += c;
-                        }
-                        else
-                        {
-                            i -= 1;
-                            Pintar3(i - auxlex.Length, auxlex, 2);
-                            estado = 0;
-                            auxlex = "";
-                        }
-                        break;
-                    #endregion
-                    case 3:
-                        #region CADENAS
-                        if (c.CompareTo('"') != 0)
-                        {
-                            estado = 3;
-                            auxlex += c;
-
-                        }
-                        else
-                        {
-                            auxlex += c;
-                            Pintar3(i - auxlex.Length, auxlex, 3);
-                            estado = 0;
-                            auxlex = "";
-                        }
-                        break;
-                        #endregion
-                }
-            }
-        }
-
-        void ListaTokensPintados2(String entrada, Continente ListaContinentes)
-        {
-            int posContinenteAct = 0;
-        #region inicializaciones
-        entrada = entrada + "#"; //NOS INDICA CUANDO LLEGAMOS AL FINAL DE A CADENA
-            estado = 0;
-            auxlex = "";
-            Char c;
-            string auxContinente = "";
-            string auxPais = "";
-            int auxPoblacion = 0;
-            int auxSaturacion = 0;
-            string auxBandera = "";
-            int llave=0, opcion=0;
-            Boolean paisCreandose=false;
-
-            #endregion
-            for (int i = 0; i <= entrada.Length - 1; i++)
-            {
-                c = entrada.ElementAt(i);
-                switch (estado)
-                {
-                    #region ESTADO 0
-                    case 0:
-                        if (Char.IsLetter(c))
-                        {
-                            estado = 1;
-                            auxlex += c;
-                        }
-                        else if (Char.IsDigit(c))
-                        {
-                            estado = 2;
-                            auxlex += c;
-                        }
-                        else if (c.CompareTo('"') == 0)
-                        {
-                            estado = 3;
-                        }
-                        #region Comparaciones directas
-                        else if (c.CompareTo('{') == 0)
-                        {
-                            auxlex += c;
-                            estado = 0;
-                            auxlex = "";
-                        }
-                        else if (c.CompareTo('}') == 0)
-                        {
-                            
-                            auxlex += c;
-                            if (llave==3 && paisCreandose==true)
-                            {
-                                miPais =ListaContinentes.getListaPaises(posContinenteAct-1);
-                                miPais.SetPais(auxPais, auxPoblacion, auxSaturacion, auxBandera);
-                            }
-                            estado = 0;
-                            auxlex = "";
-                            paisCreandose = false;
-                        }
-                        else if (c.CompareTo('%') == 0 || c.CompareTo(':') == 0)
-                        {
-                            auxlex += c;
-                            estado = 0;
-                            auxlex = "";
-                        }
-                        else if (c.CompareTo(';') == 0)
-                        {
-                            auxlex += c;
-                            estado = 0;
-                            auxlex = "";
-                        }
-                        #endregion
-                        else if (c.CompareTo(' ') == 0 || c.CompareTo('\t') == 0 || c.CompareTo('\n') == 0)
-                        {
-                            auxlex = "";
-                            estado = 0;
-                        }
-                        break;
-                    #endregion
-
-                    case 1:
-                        #region PALABRAS RESERVADAS
-                        if (Char.IsLetter(c))
-                        {
-                            estado = 1;
-                            auxlex += c;
-                        }
-                        else
-                        {
-                            i -= 1;
-                            if (auxlex.ToUpper().Equals("GRAFICA"))
-                            {
-                                llave = 1;
-                            }
-                            else if (auxlex.ToUpper().Equals("NOMBRE"))
-                            {
-                                opcion=1;
-                            }
-                            else if (auxlex.ToUpper().Equals("CONTINENTE"))
-                            {
-                                llave = 2;
-                            }
-                            else if (auxlex.ToUpper().Equals("PAIS") || auxlex.ToUpper().Equals("PAÍS"))
-                            {
-                                llave = 3;paisCreandose = true;
-                            }
-                            else if (auxlex.ToUpper().Equals("POBLACION") || auxlex.ToUpper().Equals("POBLACIÓN"))
-                            {
-                                opcion = 2;
-                            }
-                            else if (auxlex.ToUpper().Equals("SATURACION") || auxlex.ToUpper().Equals("SATURACIÓN"))
-                            {
-                                opcion = 3;
-                            }
-                            else if (auxlex.ToUpper().Equals("BANDERA"))
-                            {
-                                opcion = 4;
-                            }
-                            else
-                            {
-                                Console.WriteLine("Error lexico con: " + auxlex);//SE SUPONE QUE YA NO HAY ERRORES
-                            }
-                            estado = 0;
-                            auxlex = "";
-                        }
-                        break;
-                    #endregion
-                    case 2:
-                        #region DIGITOS
-                        if (Char.IsDigit(c))
-                        {
-                            estado = 2;
-                            auxlex += c;
-                        }
-                        else
-                        {
-                            i -= 1;
-                            Pintar3(i-auxlex.Length+1, auxlex, 2);
-                            if (llave == 3 && opcion == 2)
-                            {
-                                auxPoblacion = Int32.Parse(auxlex);
-                            }
-                            else if (llave == 3 && opcion == 3)
-                            {
-                                auxSaturacion = Int32.Parse(auxlex);
-                            }
-                            estado = 0;
-                            auxlex = "";
-                        }
-                        break;
-                    #endregion
-                    case 3:
-                        #region CADENAS
-                        if (c.CompareTo('"') != 0)
-                        {
-                            estado = 3;
-                            auxlex += c;
-                            
-                        }
-                        else
-                        {
-                            if (llave==1)
-                            {
-                                nombreGrafica = auxlex;
-                            }else if (llave==2)
-                            {
-                                auxContinente = auxlex;
-                                ListaContinentes.setContinente(auxContinente);//OJO!!!
-                                posContinenteAct++;
-                            }
-                            else if (llave==3 && opcion==1)
-                            {
-                                auxPais = auxlex;
-                            }
-                            else if (llave == 3 && opcion == 4)
-                            {
-                                auxBandera = auxlex;
-                            }
-                            estado = 0;
-                            auxlex = "";
-                        }
-                        break;
-                        #endregion
-                }
-            }
-        }
-
-        private void Pintar3(int INDEX, string cadena, int tipo)
-        {
-        //Console.WriteLine("ENTRÓ, pos: " +INDEX+"/"+cadena+"/"+tipo);
-        var control = tabControl1.SelectedTab.Controls[0];
-        RichTextBox nuevo = (RichTextBox)control;
-        nuevo.Find(cadena, INDEX, nuevo.TextLength, RichTextBoxFinds.WholeWord);
-        Console.WriteLine("--> INICIO: " + INDEX);
-            Console.WriteLine("--> CADENA: " + cadena + " Length: " + cadena.Length );
-            if (tipo==1) {
-                nuevo.SelectionColor = Color.Blue;
-            }else if(tipo==2){
-                nuevo.SelectionColor = Color.Green;
-            }else if (tipo==3){
-                nuevo.SelectionColor = Color.Yellow;
-            }else if (tipo==4){
-                nuevo.SelectionColor = Color.Red;
-            }else if (tipo == 5){
-                nuevo.SelectionColor = Color.Orange;
-            }
-
-            //INDEX = richTextBox1.Text.IndexOf(cadena, INDEX) + 1;
-            nuevo.SelectionStart = nuevo.TextLength;//AANTES ESTABA R1
-            nuevo.SelectionColor = Color.Black;
-        }
-
-        private void mostrarGrafico(string imgpath)
-        {    
-            try
-            {
-                pictureBox1.Load(imgpath);
-                //pictureBox1.Image = Image.FromFile(imgpath);
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Inconvenientes con la ruta de la imagen");
-                pictureBox1.Image = null;
-            }
-        }
+        
 
         private void button2_Click(object sender, EventArgs e)//    PDF
         {
-            try
-            {
-                if (hayErrores)
-                {
-                    MessageBox.Show("¡Corrija los errores existentes, Realice el Analisis y Vuelva a Intentar!");
-                }
-                else
-                {
-                    Document doc = new Document(iTextSharp.text.PageSize.LETTER, 10, 10, 22, 25);
-                    iTextSharp.text.pdf.PdfWriter wri = iTextSharp.text.pdf.PdfWriter.GetInstance(doc, new FileStream("ResultadoAnalisis.pdf", FileMode.Create));
-                    doc.Open();
-
-                    #region PrimeraParte
-                    iTextSharp.text.Font myFont = FontFactory.GetFont(iTextSharp.text.Font.FontFamily.HELVETICA.ToString(), 32, iTextSharp.text.Font.BOLD, iTextSharp.text.BaseColor.ORANGE);
-                    Paragraph p = new Paragraph("RESULTADO DEL ANÁLISIS", myFont);
-                    p.Alignment = Element.ALIGN_CENTER;
-                    doc.Add(p);
-
-                    iTextSharp.text.Image PNG = iTextSharp.text.Image.GetInstance(@"C:\Users\jessi\Desktop\GRAFO_PROYECTO1\imagen.png");
-                    PNG.Alignment = Element.ALIGN_CENTER;
-                    PNG.ScalePercent(120f);
-                    doc.Add(PNG);
-                    #endregion
-
-                    #region SegundaParte
-                    Paragraph espacio = new Paragraph("----------------------------------------------------", myFont);
-                    espacio.Alignment = Element.ALIGN_CENTER;
-                    doc.Add(espacio);
-                    iTextSharp.text.Font myFont2 = FontFactory.GetFont(iTextSharp.text.Font.FontFamily.TIMES_ROMAN.ToString(), 20, iTextSharp.text.Font.ITALIC, iTextSharp.text.BaseColor.BLACK);
-                    Paragraph p2 = new Paragraph("P A Í S     S E L E C C I O N A D O", myFont2);
-                    p2.Alignment = Element.ALIGN_CENTER;
-                    doc.Add(p2);
-
-                    iTextSharp.text.Image PNG2 = iTextSharp.text.Image.GetInstance(selec);
-                    PNG2.Alignment = Element.ALIGN_CENTER;
-                    PNG2.ScalePercent(115f);
-                    doc.Add(PNG2);
-
-                    List list = new List(List.UNORDERED);
-                    list.Add(new ListItem(" P A I S :     " + nombre + "\n\n"));
-                    list.Add(" POBLACIÓN:     " + poblacion + "\n\n");
-                    list.Add(" SATURACIÓN:     " + satEscogida + "\n");
-                    list.IndentationLeft = 206f;
-                    doc.Add(list);
-                    #endregion
-
-                    doc.Close();
-                    //MessageBox.Show("---   PDF creado con Éxito   ---");
-
-                    pdfPath = Path.Combine(Application.StartupPath, "ResultadoAnalisis.pdf");
-                    Process.Start(pdfPath);
-                }
-                
             
-
-            }
-            catch
-            {
-                MessageBox.Show("-----  No se pudo crear el PDF  -----");
-            }
         }
         #endregion
 
@@ -656,7 +249,7 @@ namespace LFP_Proyecto1
                 htmlPathTokens = Path.Combine(Application.StartupPath, "LFP_PaginaProyecto2.html");
                 htmlPathErrores = Path.Combine(Application.StartupPath, "LFP_PaginaErroresP2.html");
                 htmlPathSimbolos = Path.Combine(Application.StartupPath, "LFP_PaginaSimbolosP2.html");
-                String entrada = richTextBox1.Text;
+                String entrada = richTextBox1.Text;//fastColoredTextBox1.Text;//richTextBox1.Text;
                 Analizador lexico = new Analizador();
                 LinkedList<Token> lTokens = lexico.ListaTokens(entrada);
                 LinkedList<Error> lErrores = lexico.ListaErrores();
@@ -702,6 +295,12 @@ namespace LFP_Proyecto1
                         {
                             Console.WriteLine("YEI");
                         }
+                        string nombre = nombreA_Entrada.Substring(0,nombreA_Entrada.LastIndexOf('.'));
+                        nombreA_Salida = nombre+".py";
+                        StreamWriter escritor = new StreamWriter(nombreA_Salida);
+                        foreach (object line in richTextBox1.Lines)//fastColoredTextBox1.Lines)//
+                        { escritor.WriteLine(line); }
+                        escritor.Close();
                     }
                 }
             }
@@ -732,6 +331,16 @@ namespace LFP_Proyecto1
             limpiando(htmlPathTokens);
             limpiando(htmlPathSimbolos);
             limpiando(htmlPathErrores);
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lbPais_Click(object sender, EventArgs e)
+        {
+
         }
 
         private void limpiando(string actualPath)

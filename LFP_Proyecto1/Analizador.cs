@@ -50,11 +50,11 @@ namespace LFP_Proyecto1
                         {
                             estado = 2;
                             auxlex += c;
-                            Console.WriteLine("ENTRO A ISDIGIT " +auxlex);
+                            Console.WriteLine("ENTRO A ISDIGIT " + auxlex);
                         }
                         else if (c.CompareTo('"') == 0)//FALTA EL CARACTER!
                         {
-                            estado = 3;auxlex += c;
+                            estado = 3; auxlex += c;
                         }
                         else if (c.CompareTo('\'') == 0)//FALTA EL CARACTER!
                         {
@@ -95,16 +95,16 @@ namespace LFP_Proyecto1
                         else if (c.CompareTo('<') == 0)
                         {
                             auxlex += c;
-                            AgregarToken(Token.Tipo.SIGNO_MENORQUE);
+                            estado = 11;//AgregarToken(Token.Tipo.SIGNO_MENORQUE);
                         }
                         else if (c.CompareTo('>') == 0)
                         {
                             auxlex += c;
-                            AgregarToken(Token.Tipo.SIGNO_MAYORQUE);
+                            estado = 12;//AgregarToken(Token.Tipo.SIGNO_MAYORQUE);
                         }
                         else if (c.CompareTo('=') == 0)
                         {
-                            auxlex += c;estado = 9;
+                            auxlex += c; estado = 9;
                             //AgregarToken(Token.Tipo.SIGNO_IGUAL);
                         }
                         else if (c.CompareTo('!') == 0)
@@ -153,15 +153,15 @@ namespace LFP_Proyecto1
                         }
                         #endregion
 
-                        else if (c.CompareTo(' ') == 0 || c.CompareTo('\t') == 0)
+                        else if (c.CompareTo(' ') == 0 )
                         {
                             auxlex = "";
-                            estado = 0; Console.WriteLine("------------ESPACIO O TAB----------");
+                            estado = 0; 
                         }
-                        else if (c.CompareTo('\n') == 0)
+                        else if (c.CompareTo('\n') == 0 || c.Equals("\r\n") || c.CompareTo('\r') == 0 || c.CompareTo('\t') == 0)
                         {
-                            fila += 1; Console.WriteLine("------------ENTER----------");
-                            columna = 0;
+                            fila += 1;
+                            columna = 0;Console.WriteLine("COLUMNA "+columna);
                             auxlex = "";
                             estado = 0;
                         }else{
@@ -367,6 +367,7 @@ namespace LFP_Proyecto1
                         }
                         else
                         {
+                            columna = columna - auxlex.Length;
                             AgregarToken(Token.Tipo.COMENTARIO_LINEA);
                         }
                         break;
@@ -380,7 +381,7 @@ namespace LFP_Proyecto1
                         else if (c.CompareTo('*') == 0 && entrada.ElementAt(i+1).CompareTo('/') == 0) 
                         {
                             i = i + 1;
-                            columna = columna + 1;
+                            columna = columna + 1 - auxlex.Length;
                             AgregarToken(Token.Tipo.COMENTARIO_MULTI);
                         }
                         break;
@@ -418,13 +419,43 @@ namespace LFP_Proyecto1
                         #region CHAR
                         if (c.CompareTo('\'') != 0)
                         {
-                            estado = 3;
+                            estado = 10;
                             auxlex += c;
                         }
                         else
                         {
                             auxlex += c;
                             AgregarToken(Token.Tipo.CARACTER);
+                        }
+                        break;
+                    #endregion
+                    case 11:
+                        #region menorque
+                        if (c.CompareTo('=') == 0)
+                        {
+                            auxlex += c;
+                            AgregarToken(Token.Tipo.SIGNO_MENORIQ);
+                        }
+                        else
+                        {
+                            columna--;
+                            i--;
+                            AgregarToken(Token.Tipo.SIGNO_MENORQUE);
+                        }
+                        break;
+                    #endregion
+                    case 12:
+                        #region menorque
+                        if (c.CompareTo('=') == 0)
+                        {
+                            auxlex += c;
+                            AgregarToken(Token.Tipo.SIGNO_MAYORIQ);
+                        }
+                        else
+                        {
+                            columna--;
+                            i--;
+                            AgregarToken(Token.Tipo.SIGNO_MAYORQUE);
                         }
                         break;
                         #endregion

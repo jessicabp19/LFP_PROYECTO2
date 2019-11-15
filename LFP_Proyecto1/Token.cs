@@ -58,6 +58,8 @@ namespace LFP_Proyecto1
             SIGNO_MENOS,
             SIGNO_MAS,
             SIGNO_IGUALDAD,
+            SIGNO_MAYORIQ,
+            SIGNO_MENORIQ,
             //
             SIGNO_POR,
             SIGNO_DOSPUNTOS,
@@ -199,6 +201,10 @@ namespace LFP_Proyecto1
                     return "Signo Coma";
                 case Tipo.SIGNO_IGUALDAD:
                     return "Signo de Igualdad";
+                case Tipo.SIGNO_MAYORIQ:
+                    return "Signo MayorIgualQue";
+                case Tipo.SIGNO_MENORIQ:
+                    return "Signo MenorIgualQue";
 
                 case Tipo.SIGNO_POR:
                     return "Signo Por";

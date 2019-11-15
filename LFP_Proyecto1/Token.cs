@@ -188,7 +188,7 @@ namespace LFP_Proyecto1
                 case Tipo.SIGNO_NEGACION:
                     return "Signo Negación";
                 case Tipo.SIGNO_DIVIDIDO:
-                    return "Signo Divido";
+                    return "Signo Dividido";
                 case Tipo.SIGNO_MENOS:
                     return "Signo Menos";
                 case Tipo.SIGNO_MAS:

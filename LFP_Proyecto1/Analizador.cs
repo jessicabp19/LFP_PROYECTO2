@@ -54,9 +54,12 @@ namespace LFP_Proyecto1
                         }
                         else if (c.CompareTo('"') == 0)//FALTA EL CARACTER!
                         {
-                            estado = 3;
+                            estado = 3;auxlex += c;
                         }
-
+                        else if (c.CompareTo('\'') == 0)//FALTA EL CARACTER!
+                        {
+                            estado = 10; auxlex += c;
+                        }
                         #region Comparaciones directas
                         else if (c.CompareTo('{') == 0)
                         {
@@ -220,10 +223,10 @@ namespace LFP_Proyecto1
                             {
                                 AgregarToken(Token.Tipo.PR_MAIN);
                             }
-                            else if (auxlex.ToUpper().Equals("ARGS"))//Al final de cuentas puede venir lo que sea
-                            {
-                                AgregarToken(Token.Tipo.PR_ARGS);
-                            }
+                            //else if (auxlex.ToUpper().Equals("ARGS"))//Al final de cuentas puede venir lo que sea
+                            //{
+                            //    AgregarToken(Token.Tipo.PR_ARGS);
+                            //}
                             else if (auxlex.Equals("true"))
                             {
                                 AgregarToken(Token.Tipo.PR_TRUE);
@@ -298,19 +301,15 @@ namespace LFP_Proyecto1
                             estado = 2;
                             auxlex += c;
                         }
-                        else if(c.CompareTo('*')==0)
+                        else if(c.CompareTo('.')==0)
                         {
                             estado = 4;
                             auxlex +=c;
                         }
                         else
                         {
-                            Console.WriteLine("COLUMNA    " +columna);
                             --columna;
-                            Console.WriteLine(i+ "  COLUMNA    " + columna);
                             i = i-1;//ANTES HABIAN COMPARACIONES
-                            Console.WriteLine("COLUMNA iiiiiii   " + i);
-                            Console.WriteLine("antes de agregar el tokencito");
                             AgregarToken(Token.Tipo.NUMERO_ENTERO);
                             Console.WriteLine("despues de agregar el tokencito");
                         }
@@ -323,6 +322,7 @@ namespace LFP_Proyecto1
                             estado = 3;
                             auxlex += c;
                         }else{
+                            auxlex += c;
                             AgregarToken(Token.Tipo.CADENA);
                         }
                         break;
@@ -354,7 +354,7 @@ namespace LFP_Proyecto1
                         }
                         else
                         {
-                            auxlex = "/";
+                            auxlex = "/";columna--;i = i-1;
                             AgregarToken(Token.Tipo.SIGNO_DIVIDIDO);
                         }
                         break;
@@ -386,6 +386,7 @@ namespace LFP_Proyecto1
                         break;
                         #endregion
                     case 8:
+                        #region NEGACION
                         auxlex += c;
                         if (c.CompareTo('=')==0)
                         {
@@ -397,7 +398,9 @@ namespace LFP_Proyecto1
                             AgregarGranError(Error.Tipo.PALABRA_DESCONOCIDA);
                         }
                         break;
+                        #endregion
                     case 9:
+                        #region IGUALES
                         if (c.CompareTo('=') == 0)
                         {
                             auxlex += c;
@@ -410,6 +413,21 @@ namespace LFP_Proyecto1
                             AgregarToken(Token.Tipo.SIGNO_IGUAL);
                         }
                         break;
+                    #endregion
+                    case 10:
+                        #region CHAR
+                        if (c.CompareTo('\'') != 0)
+                        {
+                            estado = 3;
+                            auxlex += c;
+                        }
+                        else
+                        {
+                            auxlex += c;
+                            AgregarToken(Token.Tipo.CARACTER);
+                        }
+                        break;
+                        #endregion
                 }
             }
             return SalidaTokens;

@@ -35,3 +35,5 @@ D:\Users\JESSICA\Desktop\LFP_Proyecto1\LFP_Proyecto1\obj\Debug\LFP_Proyecto1.csp
 D:\Users\JESSICA\Desktop\LFP_Proyecto1\LFP_Proyecto1\obj\Debug\LFP_Proyecto1.csproj.CopyComplete
 D:\Users\JESSICA\Desktop\LFP_Proyecto1\LFP_Proyecto1\obj\Debug\LFP_Proyecto1.exe
 D:\Users\JESSICA\Desktop\LFP_Proyecto1\LFP_Proyecto1\obj\Debug\LFP_Proyecto1.pdb
+D:\Users\JESSICA\Desktop\LFP_Proyecto1\LFP_Proyecto1\bin\Debug\FastColoredTextBox.dll
+D:\Users\JESSICA\Desktop\LFP_Proyecto1\LFP_Proyecto1\bin\Debug\FastColoredTextBox.xml

@@ -673,6 +673,7 @@ namespace LFP_Proyecto1
                     HtmlErrores(lErrores);
                     hayErrores = true;
                     MessageBox.Show("Corrija los ERRORES LÉXICOS existentes para poder proceder");
+                    richTextBox2.Clear();richTextBox3.Clear();
                 }
                 else
                 {
@@ -689,6 +690,7 @@ namespace LFP_Proyecto1
                         //HtmlErrores2(SErrores);
                         //hayMasErrores = true;
                         MessageBox.Show("Corrija lo ERRORES SINTACTICOS existentes para poder proceder");
+                        richTextBox2.Clear(); richTextBox3.Clear();
                     }
                     else
                     {
